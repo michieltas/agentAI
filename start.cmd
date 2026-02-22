@@ -1,0 +1,1 @@
+java -jar "target/windows-agent-1.0-SNAPSHOT.jar"
