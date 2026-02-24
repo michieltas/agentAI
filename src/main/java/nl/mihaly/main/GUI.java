@@ -43,16 +43,23 @@ public class GUI {
         JTextArea output = new JTextArea(15, 50);
         output.setFont(new Font("Consolas", Font.PLAIN, 14));
         output.setEditable(false);
-        output.setLineWrap(false);          // stap 1: geen wrapping
-        output.setWrapStyleWord(false);     // stap 1: geen word-wrap
+        output.setLineWrap(false);
+        output.setWrapStyleWord(false);
         JScrollPane outputScroll = new JScrollPane(output);
         outputScroll.setBorder(BorderFactory.createTitledBorder("Output"));
         outputScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 350));
 
-        // BUTTON
+        // BUTTONS
         JButton run = new JButton("Generate Script");
         run.setFont(new Font("SansSerif", Font.BOLD, 14));
-        run.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton launch = new JButton("Launch PowerShell");
+        launch.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        // BUTTON PANEL (fix: knoppen naast elkaar)
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.add(run);
+        buttonPanel.add(launch);
 
         // BACKEND
         OllamaClient client = new OllamaClient(System.out::println);
@@ -60,7 +67,7 @@ public class GUI {
         PowerShellExecutor executor = new PowerShellExecutor();
         AgentController controller = new AgentController(interpreter, executor);
 
-        // ACTION
+        // ACTION: GENERATE SCRIPT
         run.addActionListener(e -> {
 
             String userCmd = input.getText().trim();
@@ -89,7 +96,6 @@ public class GUI {
                     waitDialog.dispose();
 
                     if (scriptOrWarning.startsWith("⚠️")) {
-                        // tabs → spaties voor nette uitlijning
                         output.setText(scriptOrWarning.replace("\t", "    "));
                         return;
                     }
@@ -103,7 +109,6 @@ public class GUI {
 
                     if (confirm == JOptionPane.YES_OPTION) {
                         String result = controller.executeApprovedScript(scriptOrWarning);
-                        // stap 2: tabs → spaties
                         output.setText(result.replace("\t", "    "));
                     } else {
                         output.setText("Execution cancelled.");
@@ -115,6 +120,22 @@ public class GUI {
             waitDialog.setVisible(true);
         });
 
+        // ACTION: LAUNCH POWERSHELL IN POPUP
+        launch.addActionListener(e -> {
+
+            try {
+
+                new ProcessBuilder(
+                        "cmd.exe", "/c", "start", "\"\"",
+                        "C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Windows PowerShell\\Windows PowerShell.lnk"
+                ).start();
+
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
         // LAYOUT
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -122,7 +143,7 @@ public class GUI {
 
         centerPanel.add(inputScroll);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        centerPanel.add(run);
+        centerPanel.add(buttonPanel);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         centerPanel.add(outputScroll);
 
