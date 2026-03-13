@@ -111,7 +111,7 @@ public class GUI {
                         String result = controller.executeApprovedScript(scriptOrWarning);
                         output.setText(result.replace("\t", "    "));
                     } else {
-                        output.setText("Execution cancelled.");
+                        output.setText(output.getText()+"\nExecution cancelled.");
                     }
                 }
             };
